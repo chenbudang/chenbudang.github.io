@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码转换工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin: 20px auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: #f9fbfd;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #eef2f7;
+        }
+        
+        .input-output {
+            flex: 2;
+            min-width: 300px;
+            background: #f9fbfd;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #eef2f7;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .panel-title i {
+            font-size: 1.6rem;
+        }
+        
+        .cipher-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .cipher-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 10px;
+            background: #f0f5ff;
+            border: 1px solid #d6e4ff;
+            border-radius: 10px;
+            color: #4a6cf7;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cipher-btn i {
+            font-size: 1.6rem;
+        }
+        
+        .cipher-btn.active {
+            background: #4a6cf7;
+            color: white;
+            border-color: #4a6cf7;
+            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+        }
+        
+        .cipher-btn:hover:not(.active) {
+            background: #e1e9ff;
+        }
+        
+        .mode-selector {
+            display: flex;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f0f5ff;
+            border: 1px solid #d6e4ff;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            color: #4a6cf7;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: #4a6cf7;
+            color: white;
+        }
+        
+        .settings {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #eef2f7;
+        }
+        
+        .setting-item {
+            margin-bottom: 15px;
+        }
+        
+        .setting-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: #4a6cf7;
+            font-weight: 500;
+        }
+        
+        .setting-item input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #d6e4ff;
+            background: white;
+            color: #333;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .setting-item input:focus {
+            outline: none;
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+        }
+        
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+        
+        .action-btn:active {
+            transform: translateY(0);
+        }
+        
+        #clear-btn {
+            background: #e74c3c;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        #clear-btn:hover {
+            background: #c0392b;
+            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+        }
+        
+        .text-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .text-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .text-box label {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #4a6cf7;
+            font-weight: 500;
+        }
+        
+        textarea {
+            width: 100%;
+            flex: 1;
+            min-height: 150px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #d6e4ff;
+            background: white;
+            color: #333;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        .instructions {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 1px solid #eef2f7;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .instructions h3 {
+            color: #4a6cf7;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .code-example {
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #4a6cf7;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+        
+        .info-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-message i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-lock"></i> 密码转换工具</h1>
+        </header>
+        
+        <div class="app-container">
+            <div class="control-panel">
+                <h2 class="panel-title"><i class="fas fa-cogs"></i> 控制面板</h2>
+                
+                <div class="cipher-selector">
+                    <button class="cipher-btn active" data-cipher="caesar">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>凯撒密码</span>
+                    </button>
+                    <button class="cipher-btn" data-cipher="railfence">
+                        <i class="fas fa-bars"></i>
+                        <span>栅栏密码</span>
+                    </button>
+                    <button class="cipher-btn" data-cipher="pigpen">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>猪圈密码</span>
+                    </button>
+                    <button class="cipher-btn" data-cipher="morse">
+                        <i class="fas fa-wifi"></i>
+                        <span>摩斯密码</span>
+                    </button>
+                </div>
+                
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="encrypt">加密</button>
+                    <button class="mode-btn" data-mode="decrypt">解密</button>
+                </div>
+                
+                <div class="settings">
+                    <div class="setting-item" id="caesar-settings">
+                        <label for="shift">偏移量 (1-25):</label>
+                        <input type="number" id="shift" min="1" max="25" value="3">
+                    </div>
+                    
+                    <div class="setting-item" id="railfence-settings" style="display: none;">
+                        <label for="rails">栏数 (2-10):</label>
+                        <input type="number" id="rails" min="2" max="10" value="3">
+                    </div>
+                    
+                    <div class="setting-item" id="morse-settings" style="display: none;">
+                        <label for="morse-char">字符分隔符:</label>
+                        <input type="text" id="morse-char" value="/" maxlength="1">
+                    </div>
+                </div>
+                
+                <button class="action-btn" id="clear-btn">
+                    <i class="fas fa-broom"></i> 清空内容
+                </button>
+            </div>
+            
+            <div class="input-output">
+                <h2 class="panel-title"><i class="fas fa-edit"></i> 输入/输出</h2>
+                
+                <div class="text-area">
+                    <div class="text-box">
+                        <label for="input-text">输入文本：</label>
+                        <textarea id="input-text" placeholder="在此输入要加密或解密的文本...">HELLO WORLD! 这是一个密码转换工具演示。</textarea>
+                    </div>
+                    
+                    <div class="text-box">
+                        <label for="output-text">输出结果：</label>
+                        <textarea id="output-text" readonly placeholder="转换结果将显示在这里..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
+            <p><span class="highlight">摩斯密码输入说明：</span></p>
+            <ul>
+                <li>使用以下字符表示<strong>长音</strong>：长、长、long、l、L、—</li>
+                <li>使用以下字符表示<strong>短音</strong>：短、short、s、S、·、.</li>
+                <li>字母之间使用空格分隔，单词之间使用<span class="highlight">/</span>分隔</li>
+            </ul>
+            <div class="code-example">
+                示例： ·· ·−− ·−·· ·−·· −−− / ·−− −−− ·−· ·−·· −·· <br>
+                或： s s l l l / l l l s l s l l l s
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面元素
+        const cipherBtns = document.querySelectorAll('.cipher-btn');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const shiftInput = document.getElementById('shift');
+        const railsInput = document.getElementById('rails');
+        const morseCharInput = document.getElementById('morse-char');
+        const caesarSettings = document.getElementById('caesar-settings');
+        const railfenceSettings = document.getElementById('railfence-settings');
+        const morseSettings = document.getElementById('morse-settings');
+        
+        // 当前选择的密码类型和模式
+        let currentCipher = 'caesar';
+        let currentMode = 'encrypt';
+        
+        // 猪圈密码映射表
+        const pigpenMap = {
+            'A': '⎕⎕⌺⌺', 'B': '⎕⎕⎕⎕', 'C': '⎕⎕⎕⎕⌺⌺', 'D': '⌺⌺⎕⎕', 'E': '⌺⌺⎕⎕⌺⌺', 'F': '⌺⌺⎕⎕⎕⎕',
+            'G': '⎕⎕⌺⌺⎕⎕', 'H': '⎕⎕⌺⌺⎕⎕⌺⌺', 'I': '⎕⎕⌺⌺⎕⎕⎕⎕', 'J': '⌺⌺⎕⎕⎕⎕⌺⌺', 'K': '⎕⎕⌺⌺⌺⌺', 
+            'L': '⎕⎕⌺⌺⌺⌺⌺⌺', 'M': '⎕⎕⌺⌺⌺⌺⎕⎕', 'N': '⌺⌺⌺⌺⎕⎕', 'O': '⌺⌺⌺⌺⎕⎕⌺⌺', 'P': '⌺⌺⌺⌺⎕⎕⎕⎕',
+            'Q': '⎕⎕⌺⌺⌺⌺⎕⎕⌺⌺', 'R': '⎕⎕⌺⌺⌺⌺⎕⎕⎕⎕', 'S': '⌺⌺⌺⌺⎕⎕⎕⎕⌺⌺', 'T': '⌺⌺⎕⎕⌺⌺⎕⎕', 'U': '⌺⌺⎕⎕⌺⌺⎕⎕⌺⌺',
+            'V': '⌺⌺⎕⎕⌺⌺⎕⎕⎕⎕', 'W': '⎕⎕⌺⌺⎕⎕⌺⌺⎕⎕', 'X': '⎕⎕⌺⌺⎕⎕⌺⌺⎕⎕⌺⌺', 'Y': '⎕⎕⌺⌺⎕⎕⌺⌺⎕⎕⎕⎕', 'Z': '⌺⌺⎕⎕⎕⎕⌺⌺⎕⎕'
+        };
+        
+        // 摩斯密码映射表
+        const morseMap = {
+            'A': '.-',     'B': '-...',   'C': '-.-.',   'D': '-..',    'E': '.',     
+            'F': '..-.',   'G': '--.',    'H': '....',   'I': '..',     'J': '.---', 
+            'K': '-.-',    'L': '.-..',   'M': '--',     'N': '-.',     'O': '---', 
+            'P': '.--.',   'Q': '--.-',   'R': '.-.',    'S': '...',    'T': '-', 
+            'U': '..-',    'V': '...-',   'W': '.--',    'X': '-..-',   'Y': '-.--', 
+            'Z': '--..', 
+            '0': '-----',  '1': '.----',  '2': '..---',  '3': '...--',  '4': '....-', 
+            '5': '.....',  '6': '-....',  '7': '--...',  '8': '---..',  '9': '----.', 
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--', 
+            '/': '-..-.',  '(': '-.--.',  ')': '-.--.-', '&': '.-...',  ':': '---...', 
+            ';': '-.-.-.', '=': '-...-',  '+': '.-.-.',  '-': '-....-', '_': '..--.-', 
+            '"': '.-..-.', '$': '...-..-', '@': '.--.-.'
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 添加事件监听器
+            cipherBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    cipherBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCipher = btn.dataset.cipher;
+                    
+                    // 显示对应的设置
+                    caesarSettings.style.display = 'none';
+                    railfenceSettings.style.display = 'none';
+                    morseSettings.style.display = 'none';
+                    
+                    if (currentCipher === 'caesar') {
+                        caesarSettings.style.display = 'block';
+                    } else if (currentCipher === 'railfence') {
+                        railfenceSettings.style.display = 'block';
+                    } else if (currentCipher === 'morse') {
+                        morseSettings.style.display = 'block';
+                    }
+                    
+                    // 处理一次
+                    processCipher();
+                });
+            });
+            
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    
+                    // 处理一次
+                    processCipher();
+                });
+            });
+            
+            clearBtn.addEventListener('click', clearText);
+            shiftInput.addEventListener('change', processCipher);
+            railsInput.addEventListener('change', processCipher);
+            morseCharInput.addEventListener('change', processCipher);
+            inputText.addEventListener('input', processCipher);
+            
+            // 初始处理
+            processCipher();
+        });
+        
+        // 清空文本
+        function clearText() {
+            inputText.value = '';
+            outputText.value = '';
+        }
+        
+        // 处理密码转换
+        function processCipher() {
+            const text = inputText.value;
+            let result = '';
+            
+            if (text.trim() === '') {
+                outputText.value = '';
+                return;
+            }
+            
+            try {
+                if (currentCipher === 'caesar') {
+                    const shift = parseInt(shiftInput.value);
+                    if (currentMode === 'encrypt') {
+                        result = caesarEncrypt(text, shift);
+                    } else {
+                        result = caesarDecrypt(text, shift);
+                    }
+                } else if (currentCipher === 'railfence') {
+                    const rails = parseInt(railsInput.value);
+                    if (currentMode === 'encrypt') {
+                        result = railFenceEncrypt(text, rails);
+                    } else {
+                        result = railFenceDecrypt(text, rails);
+                    }
+                } else if (currentCipher === 'pigpen') {
+                    if (currentMode === 'encrypt') {
+                        result = pigpenEncrypt(text);
+                    } else {
+                        result = pigpenDecrypt(text);
+                    }
+                } else if (currentCipher === 'morse') {
+                    const separator = morseCharInput.value || '/';
+                    if (currentMode === 'encrypt') {
+                        result = morseEncrypt(text, separator);
+                    } else {
+                        result = morseDecrypt(text, separator);
+                    }
+                }
+                
+                outputText.value = result;
+            } catch (e) {
+                outputText.value = "错误: " + e.message;
+            }
+        }
+        
+        // 凯撒密码加密
+        function caesarEncrypt(text, shift) {
+            return text.split('').map(char => {
+                if (char.match(/[a-z]/i)) {
+                    const isUpperCase = char === char.toUpperCase();
+                    const code = char.charCodeAt(0);
+                    const base = isUpperCase ? 65 : 97;
+                    return String.fromCharCode(((code - base + shift) % 26) + base);
+                }
+                return char;
+            }).join('');
+        }
+        
+        // 凯撒密码解密
+        function caesarDecrypt(text, shift) {
+            return text.split('').map(char => {
+                if (char.match(/[a-z]/i)) {
+                    const isUpperCase = char === char.toUpperCase();
+                    const code = char.charCodeAt(0);
+                    const base = isUpperCase ? 65 : 97;
+                    return String.fromCharCode(((code - base - shift + 26) % 26) + base);
+                }
+                return char;
+            }).join('');
+        }
+        
+        // 栅栏密码加密
+        function railFenceEncrypt(text, rails) {
+            const fence = Array(rails).fill().map(() => []);
+            let rail = 0;
+            let direction = 1;
+            
+            for (let char of text) {
+                fence[rail].push(char);
+                rail += direction;
+                
+                if (rail === rails - 1 || rail === 0) {
+                    direction = -direction;
+                }
+            }
+            
+            return fence.flat().join('');
+        }
+        
+        // 栅栏密码解密
+        function railFenceDecrypt(text, rails) {
+            const fence = Array(rails).fill().map(() => []);
+            const fencePattern = Array(text.length);
+            let rail = 0;
+            let direction = 1;
+            
+            // 创建栅栏模式
+            for (let i = 0; i < text.length; i++) {
+                fencePattern[i] = rail;
+                rail += direction;
+                
+                if (rail === rails - 1 || rail === 0) {
+                    direction = -direction;
+                }
+            }
+            
+            // 将字符分配到栅栏
+            let index = 0;
+            for (let r = 0; r < rails; r++) {
+                for (let i = 0; i < text.length; i++) {
+                    if (fencePattern[i] === r) {
+                        fence[r].push(text[index++]);
+                    }
+                }
+            }
+            
+            // 读取解密文本
+            const result = [];
+            rail = 0;
+            direction = 1;
+            
+            for (let i = 0; i < text.length; i++) {
+                result.push(fence[rail].shift());
+                rail += direction;
+                
+                if (rail === rails - 1 || rail === 0) {
+                    direction = -direction;
+                }
+            }
+            
+            return result.join('');
+        }
+        
+        // 猪圈密码加密
+        function pigpenEncrypt(text) {
+            return text.toUpperCase().split('').map(char => {
+                return pigpenMap[char] || char;
+            }).join(' ');
+        }
+        
+        // 猪圈密码解密
+        function pigpenDecrypt(text) {
+            // 反转映射
+            const reverseMap = {};
+            for (const [key, value] of Object.entries(pigpenMap)) {
+                reverseMap[value] = key;
+            }
+            
+            // 拆分符号（考虑空格分隔）
+            const symbols = text.split(/\s+/);
+            return symbols.map(sym => {
+                return reverseMap[sym] || sym;
+            }).join('');
+        }
+        
+        // 摩斯密码加密
+        function morseEncrypt(text, separator) {
+            return text.toUpperCase().split('').map(char => {
+                if (char === ' ') return separator;
+                return morseMap[char] || char;
+            }).join(' ');
+        }
+        
+        // 摩斯密码解密
+        function morseDecrypt(text, separator) {
+            // 标准化输入
+            let normalized = text
+                .replace(/长|长|long|l|L|—/gi, '-')
+                .replace(/短|short|s|S|·|\./gi, '.')
+                .replace(new RegExp('\\' + separator, 'g'), ' ');
+            
+            // 反转映射
+            const reverseMap = {};
+            for (const [key, value] of Object.entries(morseMap)) {
+                reverseMap[value] = key;
+            }
+            
+            // 拆分单词
+            const words = normalized.split('  ');
+            return words.map(word => {
+                return word.split(' ').map(code => {
+                    return reverseMap[code] || code;
+                }).join('');
+            }).join(' ');
+        }
+    </script>
+</body>
+</html>
