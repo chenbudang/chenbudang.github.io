@@ -353,10 +353,6 @@
                         <i class="fas fa-bars"></i>
                         <span>栅栏密码</span>
                     </button>
-                    <button class="cipher-btn" data-cipher="pigpen">
-                        <i class="fas fa-piggy-bank"></i>
-                        <span>猪圈密码</span>
-                    </button>
                     <button class="cipher-btn" data-cipher="morse">
                         <i class="fas fa-wifi"></i>
                         <span>摩斯密码</span>
@@ -396,7 +392,7 @@
                 <div class="text-area">
                     <div class="text-box">
                         <label for="input-text">输入文本：</label>
-                        <textarea id="input-text" placeholder="在此输入要加密或解密的文本...">HELLO WORLD! 这是一个密码转换工具演示。</textarea>
+                        <textarea id="input-text" placeholder="在此输入要加密或解密的文本...">Hello这是一个密码转换工具演示。</textarea>
                     </div>
                     
                     <div class="text-box">
@@ -411,8 +407,8 @@
             <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
             <p><span class="highlight">摩斯密码输入说明：</span></p>
             <ul>
-                <li>使用以下字符表示<strong>长音</strong>：长、long、l、L、—</li>
-                <li>使用以下字符表示<strong>短音</strong>：短、short、s、S、·、.</li>
+                <li>可以使用以下字符表示<strong>长音</strong>：长、long、l、L、—</li>
+                <li>可以使用以下字符表示<strong>短音</strong>：短、short、s、S、·、.</li>
                 <li>字母之间使用空格分隔，单词之间使用<span class="highlight">/</span>分隔</li>
             </ul>
             <div class="code-example">
@@ -439,15 +435,6 @@
         // 当前选择的密码类型和模式
         let currentCipher = 'caesar';
         let currentMode = 'encrypt';
-        
-        // 猪圈密码映射表
-        const pigpenMap = {
-            'A': '⎕⎕⌺⌺', 'B': '⎕⎕⎕⎕', 'C': '⎕⎕⎕⎕⌺⌺', 'D': '⌺⌺⎕⎕', 'E': '⌺⌺⎕⎕⌺⌺', 'F': '⌺⌺⎕⎕⎕⎕',
-            'G': '⎕⎕⌺⌺⎕⎕', 'H': '⎕⎕⌺⌺⎕⎕⌺⌺', 'I': '⎕⎕⌺⌺⎕⎕⎕⎕', 'J': '⌺⌺⎕⎕⎕⎕⌺⌺', 'K': '⎕⎕⌺⌺⌺⌺', 
-            'L': '⎕⎕⌺⌺⌺⌺⌺⌺', 'M': '⎕⎕⌺⌺⌺⌺⎕⎕', 'N': '⌺⌺⌺⌺⎕⎕', 'O': '⌺⌺⌺⌺⎕⎕⌺⌺', 'P': '⌺⌺⌺⌺⎕⎕⎕⎕',
-            'Q': '⎕⎕⌺⌺⌺⌺⎕⎕⌺⌺', 'R': '⎕⎕⌺⌺⌺⌺⎕⎕⎕⎕', 'S': '⌺⌺⌺⌺⎕⎕⎕⎕⌺⌺', 'T': '⌺⌺⎕⎕⌺⌺⎕⎕', 'U': '⌺⌺⎕⎕⌺⌺⎕⎕⌺⌺',
-            'V': '⌺⌺⎕⎕⌺⌺⎕⎕⎕⎕', 'W': '⎕⎕⌺⌺⎕⎕⌺⌺⎕⎕', 'X': '⎕⎕⌺⌺⎕⎕⌺⌺⎕⎕⌺⌺', 'Y': '⎕⎕⌺⌺⎕⎕⌺⌺⎕⎕⎕⎕', 'Z': '⌺⌺⎕⎕⎕⎕⌺⌺⎕⎕'
-        };
         
         // 摩斯密码映射表
         const morseMap = {
@@ -652,29 +639,7 @@
             
             return result.join('');
         }
-        
-        // 猪圈密码加密
-        function pigpenEncrypt(text) {
-            return text.toUpperCase().split('').map(char => {
-                return pigpenMap[char] || char;
-            }).join(' ');
-        }
-        
-        // 猪圈密码解密
-        function pigpenDecrypt(text) {
-            // 反转映射
-            const reverseMap = {};
-            for (const [key, value] of Object.entries(pigpenMap)) {
-                reverseMap[value] = key;
-            }
-            
-            // 拆分符号（考虑空格分隔）
-            const symbols = text.split(/\s+/);
-            return symbols.map(sym => {
-                return reverseMap[sym] || sym;
-            }).join('');
-        }
-        
+
         // 摩斯密码加密
         function morseEncrypt(text, separator) {
             return text.toUpperCase().split('').map(char => {
