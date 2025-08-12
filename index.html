@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>密码转换工具</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.1/jsencrypt.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -14,323 +16,339 @@
         }
         
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            background-color: #f8f9fa;
             color: #333;
             min-height: 100vh;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
         
         .container {
-            width: 100%;
-            max-width: 1000px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            padding: 30px;
-            margin: 20px auto;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         header {
             text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+            margin-bottom: 30px;
         }
         
-        h1 {
+        header h1 {
+            color: #1e88e5;
             font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
         
         .app-container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
             gap: 25px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         
-        .control-panel {
-            flex: 1;
-            min-width: 300px;
-            background: #f9fbfd;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-            border: 1px solid #eef2f7;
-        }
-        
-        .input-output {
-            flex: 2;
-            min-width: 300px;
-            background: #f9fbfd;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-            border: 1px solid #eef2f7;
-            display: flex;
-            flex-direction: column;
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
         }
         
         .panel-title {
+            background: #1e88e5;
+            color: white;
+            padding: 15px 20px;
             font-size: 1.4rem;
-            margin-bottom: 20px;
-            color: #3498db;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
         }
         
-        .panel-title i {
-            font-size: 1.6rem;
+        .panel-content {
+            padding: 20px;
         }
         
+        /* 控制面板样式 */
         .cipher-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
         .cipher-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 14px 10px;
-            background: #f0f5ff;
-            border: 1px solid #d6e4ff;
-            border-radius: 10px;
-            color: #4a6cf7;
-            font-size: 1rem;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            transition: all 0.2s ease;
         }
         
-        .cipher-btn i {
-            font-size: 1.6rem;
+        .cipher-btn:hover {
+            border-color: #1e88e5;
+            color: #1e88e5;
         }
         
         .cipher-btn.active {
-            background: #4a6cf7;
-            color: white;
-            border-color: #4a6cf7;
-            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+            background: #e3f2fd;
+            border-color: #1e88e5;
+            color: #1e88e5;
         }
         
-        .cipher-btn:hover:not(.active) {
-            background: #e1e9ff;
+        .cipher-btn i {
+            font-size: 1.5rem;
+            color: #1e88e5;
         }
         
         .mode-selector {
             display: flex;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #f0f5ff;
-            border: 1px solid #d6e4ff;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
         .mode-btn {
             flex: 1;
-            padding: 14px;
-            border: none;
-            background: transparent;
-            color: #4a6cf7;
-            font-size: 1.1rem;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            background: white;
         }
         
         .mode-btn.active {
-            background: #4a6cf7;
+            background: #1e88e5;
             color: white;
+            border-color: #1e88e5;
+        }
+        
+        .mode-btn:not(.active):hover {
+            border-color: #1e88e5;
+            color: #1e88e5;
         }
         
         .settings {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid #eef2f7;
+            margin-bottom: 20px;
         }
         
         .setting-item {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .setting-item.active {
+            display: block;
         }
         
         .setting-item label {
             display: block;
             margin-bottom: 8px;
-            font-size: 1rem;
-            color: #4a6cf7;
-            font-weight: 500;
+            font-weight: 600;
+            color: #2c3e50;
         }
         
-        .setting-item input {
+        .setting-item input,
+        .setting-item textarea {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            border: 1px solid #d6e4ff;
-            background: white;
-            color: #333;
             font-size: 1rem;
-            transition: border-color 0.3s;
         }
         
-        .setting-item input:focus {
-            outline: none;
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+        .setting-item textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .key-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .key-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .key-action-btn {
+            padding: 12px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .key-action-btn:hover {
+            background: #1565c0;
         }
         
         .action-btn {
             width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
+            padding: 15px;
+            background: #e53935;
             color: white;
-            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 1.1rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
         }
         
         .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+            background: #c62828;
         }
         
-        .action-btn:active {
-            transform: translateY(0);
-        }
-        
-        #clear-btn {
-            background: #e74c3c;
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-        }
-        
-        #clear-btn:hover {
-            background: #c0392b;
-            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
-        }
-        
+        /* 输入输出区域样式 */
         .text-area {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
         }
         
         .text-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
         }
         
         .text-box label {
+            display: block;
             margin-bottom: 10px;
-            font-size: 1.1rem;
-            color: #4a6cf7;
-            font-weight: 500;
+            font-weight: 600;
+            color: #2c3e50;
         }
         
-        textarea {
+        .text-box textarea {
             width: 100%;
-            flex: 1;
             min-height: 150px;
             padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #d6e4ff;
-            background: white;
-            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 1rem;
             resize: vertical;
-            transition: border-color 0.3s;
         }
         
-        textarea:focus {
-            outline: none;
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+        .output-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
         }
         
-        @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
+        .copy-btn {
+            padding: 10px 20px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
         }
         
+        .copy-btn:hover {
+            background: #1565c0;
+        }
+        
+        /* 提示区域样式 */
         .instructions {
             background: white;
             border-radius: 10px;
-            padding: 20px;
-            margin-top: 25px;
-            border: 1px solid #eef2f7;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #555;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
         }
         
         .instructions h3 {
-            color: #4a6cf7;
-            margin-bottom: 12px;
-            font-size: 1.2rem;
-        }
-        
-        .instructions ul {
-            padding-left: 20px;
-            margin: 10px 0;
-        }
-        
-        .instructions li {
-            margin-bottom: 8px;
-        }
-        
-        .instructions .highlight {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        
-        .code-example {
-            background: #f8fafc;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border-left: 3px solid #4a6cf7;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 0.95rem;
-        }
-        
-        .info-message {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.9rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .info-message i {
-            font-size: 1.2rem;
+        .instructions p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            font-weight: 600;
+            color: #1e88e5;
+        }
+        
+        .instructions ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .code-example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            line-height: 1.5;
+            border-left: 4px solid #1e88e5;
+        }
+        
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .cipher-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .cipher-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .key-actions {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -341,68 +359,121 @@
         </header>
         
         <div class="app-container">
-            <div class="control-panel">
+            <!-- 控制面板区域 -->
+            <div class="panel">
                 <h2 class="panel-title"><i class="fas fa-cogs"></i> 控制面板</h2>
-                
-                <div class="cipher-selector">
-                    <button class="cipher-btn active" data-cipher="caesar">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span>凯撒密码</span>
-                    </button>
-                    <button class="cipher-btn" data-cipher="railfence">
-                        <i class="fas fa-bars"></i>
-                        <span>栅栏密码</span>
-                    </button>
-                    <button class="cipher-btn" data-cipher="morse">
-                        <i class="fas fa-wifi"></i>
-                        <span>摩斯密码</span>
-                    </button>
-                </div>
-                
-                <div class="mode-selector">
-                    <button class="mode-btn active" data-mode="encrypt">加密</button>
-                    <button class="mode-btn" data-mode="decrypt">解密</button>
-                </div>
-                
-                <div class="settings">
-                    <div class="setting-item" id="caesar-settings">
-                        <label for="shift">偏移量 (1-25):</label>
-                        <input type="number" id="shift" min="1" max="25" value="3">
+                <div class="panel-content">
+                    <div class="cipher-selector">
+                        <button class="cipher-btn active" data-cipher="caesar">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>凯撒密码</span>
+                        </button>
+                        <button class="cipher-btn" data-cipher="railfence">
+                            <i class="fas fa-bars"></i>
+                            <span>栅栏密码</span>
+                        </button>
+                        <button class="cipher-btn" data-cipher="morse">
+                            <i class="fas fa-wifi"></i>
+                            <span>摩斯密码</span>
+                        </button>
+                        <button class="cipher-btn" data-cipher="aes">
+                            <i class="fas fa-lock"></i>
+                            <span>AES加密</span>
+                        </button>
+                        <button class="cipher-btn" data-cipher="rsa">
+                            <i class="fas fa-key"></i>
+                            <span>RSA加密</span>
+                        </button>
                     </div>
                     
-                    <div class="setting-item" id="railfence-settings" style="display: none;">
-                        <label for="rails">栏数 (2-10):</label>
-                        <input type="number" id="rails" min="2" max="10" value="3">
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="encrypt">加密</button>
+                        <button class="mode-btn" data-mode="decrypt">解密</button>
                     </div>
                     
-                    <div class="setting-item" id="morse-settings" style="display: none;">
-                        <label for="morse-char">字符分隔符:</label>
-                        <input type="text" id="morse-char" value="/" maxlength="1">
+                    <div class="settings">
+                        <div class="setting-item active" id="caesar-settings">
+                            <label for="shift">偏移量 (1-25):</label>
+                            <input type="number" id="shift" min="1" max="25" value="3">
+                        </div>
+                        
+                        <div class="setting-item" id="railfence-settings">
+                            <label for="rails">栏数 (2-10):</label>
+                            <input type="number" id="rails" min="2" max="10" value="3">
+                        </div>
+                        
+                        <div class="setting-item" id="morse-settings">
+                            <label for="morse-char">字符分隔符:</label>
+                            <input type="text" id="morse-char" value="/" maxlength="1">
+                        </div>
+                        
+                        <div class="setting-item" id="aes-settings">
+                            <label for="aes-key">密钥:</label>
+                            <input type="text" id="aes-key" placeholder="输入16/24/32字符的密钥">
+                            <div class="key-info">密钥长度：16字符(AES-128), 24字符(AES-192), 32字符(AES-256)</div>
+                            
+                            <div class="key-actions">
+                                <button id="generate-aes-key" class="key-action-btn">
+                                    <i class="fas fa-key"></i> 生成密钥
+                                </button>
+                                <button id="copy-aes-key" class="key-action-btn">
+                                    <i class="fas fa-copy"></i> 复制密钥
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item" id="rsa-settings">
+                            <label for="rsa-public-key">公钥:</label>
+                            <textarea id="rsa-public-key" placeholder="输入RSA公钥"></textarea>
+                            
+                            <label for="rsa-private-key">私钥:</label>
+                            <textarea id="rsa-private-key" placeholder="输入RSA私钥"></textarea>
+                            
+                            <div class="key-actions">
+                                <button id="generate-rsa-keys" class="key-action-btn">
+                                    <i class="fas fa-key"></i> 生成密钥对
+                                </button>
+                                <button id="copy-rsa-public" class="key-action-btn">
+                                    <i class="fas fa-copy"></i> 复制公钥
+                                </button>
+                                <button id="copy-rsa-private" class="key-action-btn">
+                                    <i class="fas fa-copy"></i> 复制私钥
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    
+                    <button class="action-btn" id="clear-btn">
+                        <i class="fas fa-broom"></i> 清空内容
+                    </button>
                 </div>
-                
-                <button class="action-btn" id="clear-btn">
-                    <i class="fas fa-broom"></i> 清空内容
-                </button>
             </div>
             
-            <div class="input-output">
+            <!-- 输入输出区域 -->
+            <div class="panel">
                 <h2 class="panel-title"><i class="fas fa-edit"></i> 输入/输出</h2>
-                
-                <div class="text-area">
-                    <div class="text-box">
-                        <label for="input-text">输入文本：</label>
-                        <textarea id="input-text" placeholder="在此输入要加密或解密的文本...">Hello这是一个密码转换工具演示。</textarea>
-                    </div>
-                    
-                    <div class="text-box">
-                        <label for="output-text">输出结果：</label>
-                        <textarea id="output-text" readonly placeholder="转换结果将显示在这里..."></textarea>
+                <div class="panel-content">
+                    <div class="text-area">
+                        <div class="text-box">
+                            <label for="input-text">输入文本：</label>
+                            <textarea id="input-text" placeholder="在此输入要加密或解密的文本...">Hello这是一个密码转换工具演示。</textarea>
+                        </div>
+                        
+                        <div class="text-box">
+                            <label for="output-text">输出结果：</label>
+                            <textarea id="output-text" readonly placeholder="转换结果将显示在这里..."></textarea>
+                            <div class="output-actions">
+                                <button id="copy-output" class="copy-btn">
+                                    <i class="fas fa-copy"></i> 复制输出
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
+        <!-- 提示区域 -->
         <div class="instructions">
             <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
             <p><span class="highlight">摩斯密码输入说明：</span></p>
@@ -415,6 +486,14 @@
                 示例： ·· ·−− ·−·· ·−·· −−− / ·−− −−− ·−· ·−·· −·· <br>
                 或： s s l l l / l l l s l s l l l s
             </div>
+            
+            <p><span class="highlight">现代加密说明：</span></p>
+            <ul>
+                <li><strong>AES</strong>：对称加密算法，加密和解密使用相同的密钥</li>
+                <li><strong>RSA</strong>：非对称加密算法，使用公钥加密，私钥解密</li>
+                <li>RSA加密适用于小文本（&lt;245字节），长文本请使用AES加密</li>
+                <li>生成密钥后请妥善保存，丢失后将无法解密</li>
+            </ul>
         </div>
     </div>
 
@@ -428,9 +507,16 @@
         const shiftInput = document.getElementById('shift');
         const railsInput = document.getElementById('rails');
         const morseCharInput = document.getElementById('morse-char');
-        const caesarSettings = document.getElementById('caesar-settings');
-        const railfenceSettings = document.getElementById('railfence-settings');
-        const morseSettings = document.getElementById('morse-settings');
+        const settingItems = document.querySelectorAll('.setting-item');
+        const aesKeyInput = document.getElementById('aes-key');
+        const rsaPublicKeyInput = document.getElementById('rsa-public-key');
+        const rsaPrivateKeyInput = document.getElementById('rsa-private-key');
+        const generateAesKeyBtn = document.getElementById('generate-aes-key');
+        const copyAesKeyBtn = document.getElementById('copy-aes-key');
+        const generateRsaKeysBtn = document.getElementById('generate-rsa-keys');
+        const copyRsaPublicBtn = document.getElementById('copy-rsa-public');
+        const copyRsaPrivateBtn = document.getElementById('copy-rsa-private');
+        const copyOutputBtn = document.getElementById('copy-output');
         
         // 当前选择的密码类型和模式
         let currentCipher = 'caesar';
@@ -462,17 +548,8 @@
                     currentCipher = btn.dataset.cipher;
                     
                     // 显示对应的设置
-                    caesarSettings.style.display = 'none';
-                    railfenceSettings.style.display = 'none';
-                    morseSettings.style.display = 'none';
-                    
-                    if (currentCipher === 'caesar') {
-                        caesarSettings.style.display = 'block';
-                    } else if (currentCipher === 'railfence') {
-                        railfenceSettings.style.display = 'block';
-                    } else if (currentCipher === 'morse') {
-                        morseSettings.style.display = 'block';
-                    }
+                    settingItems.forEach(item => item.classList.remove('active'));
+                    document.getElementById(`${currentCipher}-settings`).classList.add('active');
                     
                     // 处理一次
                     processCipher();
@@ -494,7 +571,18 @@
             shiftInput.addEventListener('change', processCipher);
             railsInput.addEventListener('change', processCipher);
             morseCharInput.addEventListener('change', processCipher);
+            aesKeyInput.addEventListener('input', processCipher);
+            rsaPublicKeyInput.addEventListener('input', processCipher);
+            rsaPrivateKeyInput.addEventListener('input', processCipher);
             inputText.addEventListener('input', processCipher);
+            
+            // 密钥生成和复制按钮
+            generateAesKeyBtn.addEventListener('click', generateAesKey);
+            copyAesKeyBtn.addEventListener('click', copyAesKey);
+            generateRsaKeysBtn.addEventListener('click', generateRsaKeys);
+            copyRsaPublicBtn.addEventListener('click', () => copyToClipboard(rsaPublicKeyInput));
+            copyRsaPrivateBtn.addEventListener('click', () => copyToClipboard(rsaPrivateKeyInput));
+            copyOutputBtn.addEventListener('click', () => copyToClipboard(outputText));
             
             // 初始处理
             processCipher();
@@ -531,18 +619,37 @@
                     } else {
                         result = railFenceDecrypt(text, rails);
                     }
-                } else if (currentCipher === 'pigpen') {
-                    if (currentMode === 'encrypt') {
-                        result = pigpenEncrypt(text);
-                    } else {
-                        result = pigpenDecrypt(text);
-                    }
                 } else if (currentCipher === 'morse') {
                     const separator = morseCharInput.value || '/';
                     if (currentMode === 'encrypt') {
                         result = morseEncrypt(text, separator);
                     } else {
                         result = morseDecrypt(text, separator);
+                    }
+                } else if (currentCipher === 'aes') {
+                    const key = aesKeyInput.value.trim();
+                    if (key.length === 0) {
+                        result = "请先生成或输入AES密钥";
+                    } else if (currentMode === 'encrypt') {
+                        result = aesEncrypt(text, key);
+                    } else {
+                        result = aesDecrypt(text, key);
+                    }
+                } else if (currentCipher === 'rsa') {
+                    if (currentMode === 'encrypt') {
+                        const publicKey = rsaPublicKeyInput.value.trim();
+                        if (publicKey.length === 0) {
+                            result = "请输入RSA公钥";
+                        } else {
+                            result = rsaEncrypt(text, publicKey);
+                        }
+                    } else {
+                        const privateKey = rsaPrivateKeyInput.value.trim();
+                        if (privateKey.length === 0) {
+                            result = "请输入RSA私钥";
+                        } else {
+                            result = rsaDecrypt(text, privateKey);
+                        }
                     }
                 }
                 
@@ -669,6 +776,120 @@
                     return reverseMap[code] || code;
                 }).join('');
             }).join(' ');
+        }
+        
+        // ================= 现代加密算法实现 =================
+        
+        // 生成AES密钥
+        function generateAesKey() {
+            const keyLength = [16, 24, 32][Math.floor(Math.random() * 3)];
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+            let result = '';
+            
+            for (let i = 0; i < keyLength; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            
+            aesKeyInput.value = result;
+            processCipher();
+        }
+        
+        // 复制AES密钥
+        function copyAesKey() {
+            copyToClipboard(aesKeyInput);
+        }
+        
+        // AES加密
+        function aesEncrypt(text, key) {
+            const keyLength = key.length;
+            if (keyLength !== 16 && keyLength !== 24 && keyLength !== 32) {
+                throw new Error('密钥长度必须是16(AES-128)、24(AES-192)或32(AES-256)字符');
+            }
+            
+            try {
+                // 使用CryptoJS库进行AES加密
+                const encrypted = CryptoJS.AES.encrypt(text, key);
+                return encrypted.toString();
+            } catch (e) {
+                throw new Error('AES加密失败: ' + e.message);
+            }
+        }
+        
+        // AES解密
+        function aesDecrypt(ciphertext, key) {
+            try {
+                // 使用CryptoJS库进行AES解密
+                const decrypted = CryptoJS.AES.decrypt(ciphertext, key);
+                return decrypted.toString(CryptoJS.enc.Utf8) || "解密失败 - 密钥可能不正确";
+            } catch (e) {
+                throw new Error('AES解密失败: ' + e.message);
+            }
+        }
+        
+        // 生成RSA密钥对
+        function generateRsaKeys() {
+            const encrypt = new JSEncrypt({default_key_size: 2048});
+            encrypt.getKey();
+            
+            const publicKey = encrypt.getPublicKey();
+            const privateKey = encrypt.getPrivateKey();
+            
+            rsaPublicKeyInput.value = publicKey;
+            rsaPrivateKeyInput.value = privateKey;
+            processCipher();
+        }
+        
+        // RSA加密
+        function rsaEncrypt(text, publicKey) {
+            try {
+                const encrypt = new JSEncrypt();
+                encrypt.setPublicKey(publicKey);
+                
+                // 检查文本长度
+                const maxLength = 245; // 2048位RSA的最大加密长度
+                if (text.length > maxLength) {
+                    throw new Error(`文本过长（${text.length}字符），RSA加密限制为${maxLength}字符`);
+                }
+                
+                const encrypted = encrypt.encrypt(text);
+                if (!encrypted) {
+                    throw new Error('加密失败 - 公钥可能无效');
+                }
+                
+                return encrypted;
+            } catch (e) {
+                throw new Error('RSA加密失败: ' + e.message);
+            }
+        }
+        
+        // RSA解密
+        function rsaDecrypt(ciphertext, privateKey) {
+            try {
+                const decrypt = new JSEncrypt();
+                decrypt.setPrivateKey(privateKey);
+                
+                const decrypted = decrypt.decrypt(ciphertext);
+                if (!decrypted) {
+                    throw new Error('解密失败 - 私钥可能无效');
+                }
+                
+                return decrypted;
+            } catch (e) {
+                throw new Error('RSA解密失败: ' + e.message);
+            }
+        }
+        
+        // 复制到剪贴板
+        function copyToClipboard(element) {
+            element.select();
+            document.execCommand('copy');
+            
+            // 添加视觉反馈
+            const originalText = element.value;
+            element.value = "已复制到剪贴板！";
+            setTimeout(() => {
+                element.value = originalText;
+            }, 1500);
         }
     </script>
 </body>
