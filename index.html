@@ -567,102 +567,6 @@
                 return;
             }
             
-            try {
-                if (currentCipher === 'caesar') {
-                    } 
-        else if (currentCipher === 'aes') {
-            const key = document.getElementById('aes-key').value;
-            if (!key) throw new Error("AES密钥不能为空");
-            
-            if (currentMode === 'encrypt') {
-                result = aesEncrypt(text, key);
-            } else {
-                result = aesDecrypt(text, key);
-            }
-        }
-        else if (currentCipher === 'ecc') {
-             const curve = document.getElementById('ecc-curve').value;
-            const publicKey = document.getElementById('public-key').value;
-            const privateKey = document.getElementById('private-key').value;
-            
-            if (currentMode === 'encrypt') {
-                if (!publicKey) throw new Error("需要公钥进行加密");
-                result = eccEncrypt(text, publicKey, curve);
-            } else {
-                if (!privateKey) throw new Error("需要私钥进行解密");
-                result = eccDecrypt(text, privateKey, curve);
-            }
-        }
-        
-        outputText.value = result;
-    } catch (e) {
-        outputText.value = "错误: " + e.message;
-    }
-}
-        
-        function aesEncrypt(text, key) {
-         return "AES加密结果: " + text + " (使用密钥: " + key + ")";
-}
-
-        function aesDecrypt(ciphertext, key) {
-    return "AES解密结果: " + ciphertext + " (使用密钥: " + key + ")";
-
-            function eccEncrypt(text, publicKey, curve) {
-    return "ECC加密结果: " + text + " (使用曲线: " + curve + ", 公钥: " + publicKey + ")";
-}
-
-function eccDecrypt(ciphertext, privateKey, curve) {
-    return "ECC解密结果: " + ciphertext + " (使用曲线: " + curve + ", 私钥: " + privateKey + ")";
-}
-
-            document.getElementById('generate-keys').addEventListener('click', function() {
-    const curve = document.getElementById('ecc-curve').value;
-    
-    const keys = {
-        public: "PUB_" + curve + "_" + Math.random().toString(36).substring(2, 15),
-        private: "PRIV_" + curve + "_" + Math.random().toString(36).substring(2, 15)
-    };
-    
-    document.getElementById('public-key').value = keys.public;
-    document.getElementById('private-key').value = keys.private;
-    document.getElementById('key-display').style.display = 'block';
-});
-            
-}
-                    const shift = parseInt(shiftInput.value);
-                    if (currentMode === 'encrypt') {
-                        result = caesarEncrypt(text, shift);
-                    } else {
-                        result = caesarDecrypt(text, shift);
-                    }
-                } else if (currentCipher === 'railfence') {
-                    const rails = parseInt(railsInput.value);
-                    if (currentMode === 'encrypt') {
-                        result = railFenceEncrypt(text, rails);
-                    } else {
-                        result = railFenceDecrypt(text, rails);
-                    }
-                } else if (currentCipher === 'pigpen') {
-                    if (currentMode === 'encrypt') {
-                        result = pigpenEncrypt(text);
-                    } else {
-                        result = pigpenDecrypt(text);
-                    }
-                } else if (currentCipher === 'morse') {
-                    const separator = morseCharInput.value || '/';
-                    if (currentMode === 'encrypt') {
-                        result = morseEncrypt(text, separator);
-                    } else {
-                        result = morseDecrypt(text, separator);
-                    }
-                }
-                
-                outputText.value = result;
-            } catch (e) {
-                outputText.value = "错误: " + e.message;
-            }
-        }
-        
         // 凯撒密码加密
         function caesarEncrypt(text, shift) {
             return text.split('').map(char => {
@@ -688,6 +592,107 @@ function eccDecrypt(ciphertext, privateKey, curve) {
                 return char;
             }).join('');
         }
+            
+            function aesEncrypt(text, key) {
+    return "AES加密结果: " + text + " (使用密钥: " + key + ")";
+}
+
+function aesDecrypt(ciphertext, key) {
+    return "AES解密结果: " + ciphertext + " (使用密钥: " + key + ")";
+}
+
+function eccEncrypt(text, publicKey, curve) {
+    return "ECC加密结果: " + text + " (使用曲线: " + curve + ", 公钥: " + publicKey + ")";
+}
+
+function eccDecrypt(ciphertext, privateKey, curve) {
+    return "ECC解密结果: " + ciphertext + " (使用曲线: " + curve + ", 私钥: " + privateKey + ")";
+}
+
+// 在DOMContentLoaded事件中添加事件监听器
+document.addEventListener('DOMContentLoaded', () => {
+    // ...其他初始化代码...
+    
+    // 添加生成密钥按钮的事件监听器
+    document.getElementById('generate-keys').addEventListener('click', function() {
+        const curve = document.getElementById('ecc-curve').value;
+        const keys = {
+            public: "PUB_" + curve + "_" + Math.random().toString(36).substring(2, 15),
+            private: "PRIV_" + curve + "_" + Math.random().toString(36).substring(2, 15)
+        };
+        document.getElementById('public-key').value = keys.public;
+        document.getElementById('private-key').value = keys.private;
+        document.getElementById('key-display').style.display = 'block';
+    });
+    
+    // ...其他事件监听器...
+});
+
+// 修复processCipher函数的结构
+function processCipher() {
+    const text = inputText.value;
+    let result = '';
+    
+    if (text.trim() === '') {
+        outputText.value = '';
+        return;
+    }
+    
+    try {
+        if (currentCipher === 'caesar') {
+            const shift = parseInt(shiftInput.value);
+            if (currentMode === 'encrypt') {
+                result = caesarEncrypt(text, shift);
+            } else {
+                result = caesarDecrypt(text, shift);
+            }
+        } 
+        else if (currentCipher === 'railfence') {
+            const rails = parseInt(railsInput.value);
+            if (currentMode === 'encrypt') {
+                result = railFenceEncrypt(text, rails);
+            } else {
+                result = railFenceDecrypt(text, rails);
+            }
+        } 
+        else if (currentCipher === 'morse') {
+            const separator = morseCharInput.value || '/';
+            if (currentMode === 'encrypt') {
+                result = morseEncrypt(text, separator);
+            } else {
+                result = morseDecrypt(text, separator);
+            }
+        }
+        else if (currentCipher === 'aes') {
+            const key = document.getElementById('aes-key').value;
+            if (!key) throw new Error("AES密钥不能为空");
+            
+            if (currentMode === 'encrypt') {
+                result = aesEncrypt(text, key);
+            } else {
+                result = aesDecrypt(text, key);
+            }
+        }
+        else if (currentCipher === 'ecc') {
+            const curve = document.getElementById('ecc-curve').value;
+            const publicKey = document.getElementById('public-key').value;
+            const private极客时间
+            const privateKey = document.getElementById('private-key').value;
+            
+            if (currentMode === 'encrypt') {
+                if (!publicKey) throw new Error("需要公钥进行加密");
+                result = eccEncrypt(text, publicKey, curve);
+            } else {
+                if (!privateKey) throw new Error("需要私钥进行解密");
+                result = eccDecrypt(text, privateKey, curve);
+            }
+        }
+        
+        outputText.value = result;
+    } catch (e) {
+        outputText.value = "错误: " + e.message;
+    }
+}
         
         // 栅栏密码加密
         function railFenceEncrypt(text, rails) {
