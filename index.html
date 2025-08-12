@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>密码转换工具</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -361,58 +359,6 @@
                         <span>摩斯密码</span>
                     </button>
                     <button class="cipher-btn" data-cipher="aes">
-        <i class="fas fa-shield-alt"></i>
-        <span>AES加密</span>
-    </button>
-    <button class="cipher-btn" data-cipher="ecc">
-        <i class="fas fa-key"></i>
-        <span>ECC加密</span>
-    </button>
-                </div>
-                
-                <div class="mode-selector">
-                    <button class="mode-btn active" data-mode="encrypt">加密</button>
-                    <button class="mode-btn" data-mode="decrypt">解密</button>
-                </div>
-                
-                <div class="settings">
-                    <div class="setting-item" id="aes-settings" style="display: none;">
-        <label for="aes-key">AES密钥：</label>
-        <input type="password" id="aes-key" placeholder="输入16/24/32字符密钥">
-        <div class="key-options">
-            <label>
-                <input type="radio" name="key-length" value="128" checked> 128位
-            </label>
-            <label>
-                <input type="radio" name="key-length" value="192"> 192位
-            </label>
-            <label>
-                <input type="radio" name="key-length" value="256"> 256位
-            </label>
-        </div>
-    </div>
-            <div class="setting-item" id="ecc-settings" style="display: none;">
-        <label for="ecc-curve">曲线类型：</label>
-        <select id="ecc-curve">
-            <option value="secp256k1">secp256k1 (比特币)</option>
-            <option value="p256">P-256</option>
-            <option value="p384">P-384</option>
-        </select>
-        
-        <div class="ecc-actions">
-            <button id="generate-keys" class="key-btn">
-                <i class="fas fa-key"></i> 生成密钥对
-            </button>
-            <button id="import-keys" class="key-btn">
-                <i class="fas fa-file-import"></i> 导入密钥
-            </button>
-        </div>
-        
-        <div id="key-display" style="display: none; margin-top: 15px;">
-            <label>公钥：</label>
-            <textarea id="public-key" readonly rows="2" style="width: 100%;"></textarea>
-            <label>私钥：</label>
-            <textarea id="private-key" readonly rows="2" style="width: 100%;"></textarea>
         </div>
     </div>
 </div>        
@@ -592,108 +538,7 @@
                 return char;
             }).join('');
         }
-            
-            function aesEncrypt(text, key) {
-    return "AES加密结果: " + text + " (使用密钥: " + key + ")";
-}
-
-function aesDecrypt(ciphertext, key) {
-    return "AES解密结果: " + ciphertext + " (使用密钥: " + key + ")";
-}
-
-function eccEncrypt(text, publicKey, curve) {
-    return "ECC加密结果: " + text + " (使用曲线: " + curve + ", 公钥: " + publicKey + ")";
-}
-
-function eccDecrypt(ciphertext, privateKey, curve) {
-    return "ECC解密结果: " + ciphertext + " (使用曲线: " + curve + ", 私钥: " + privateKey + ")";
-}
-
-// 在DOMContentLoaded事件中添加事件监听器
-document.addEventListener('DOMContentLoaded', () => {
-    // ...其他初始化代码...
-    
-    // 添加生成密钥按钮的事件监听器
-    document.getElementById('generate-keys').addEventListener('click', function() {
-        const curve = document.getElementById('ecc-curve').value;
-        const keys = {
-            public: "PUB_" + curve + "_" + Math.random().toString(36).substring(2, 15),
-            private: "PRIV_" + curve + "_" + Math.random().toString(36).substring(2, 15)
-        };
-        document.getElementById('public-key').value = keys.public;
-        document.getElementById('private-key').value = keys.private;
-        document.getElementById('key-display').style.display = 'block';
-    });
-    
-    // ...其他事件监听器...
-});
-
-// 修复processCipher函数的结构
-function processCipher() {
-    const text = inputText.value;
-    let result = '';
-    
-    if (text.trim() === '') {
-        outputText.value = '';
-        return;
-    }
-    
-    try {
-        if (currentCipher === 'caesar') {
-            const shift = parseInt(shiftInput.value);
-            if (currentMode === 'encrypt') {
-                result = caesarEncrypt(text, shift);
-            } else {
-                result = caesarDecrypt(text, shift);
-            }
-        } 
-        else if (currentCipher === 'railfence') {
-            const rails = parseInt(railsInput.value);
-            if (currentMode === 'encrypt') {
-                result = railFenceEncrypt(text, rails);
-            } else {
-                result = railFenceDecrypt(text, rails);
-            }
-        } 
-        else if (currentCipher === 'morse') {
-            const separator = morseCharInput.value || '/';
-            if (currentMode === 'encrypt') {
-                result = morseEncrypt(text, separator);
-            } else {
-                result = morseDecrypt(text, separator);
-            }
-        }
-        else if (currentCipher === 'aes') {
-            const key = document.getElementById('aes-key').value;
-            if (!key) throw new Error("AES密钥不能为空");
-            
-            if (currentMode === 'encrypt') {
-                result = aesEncrypt(text, key);
-            } else {
-                result = aesDecrypt(text, key);
-            }
-        }
-        else if (currentCipher === 'ecc') {
-            const curve = document.getElementById('ecc-curve').value;
-            const publicKey = document.getElementById('public-key').value;
-            const private极客时间
-            const privateKey = document.getElementById('private-key').value;
-            
-            if (currentMode === 'encrypt') {
-                if (!publicKey) throw new Error("需要公钥进行加密");
-                result = eccEncrypt(text, publicKey, curve);
-            } else {
-                if (!privateKey) throw new Error("需要私钥进行解密");
-                result = eccDecrypt(text, privateKey, curve);
-            }
-        }
-        
-        outputText.value = result;
-    } catch (e) {
-        outputText.value = "错误: " + e.message;
-    }
-}
-        
+                   
         // 栅栏密码加密
         function railFenceEncrypt(text, rails) {
             const fence = Array(rails).fill().map(() => []);
